@@ -1,0 +1,33 @@
+{
+  "name": "entity-component-system",
+  "version": "0.1.0",
+  "description": "Javascript Entity Component System",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc *.ts --emitDeclarationOnly --declaration --declarationDir build && esbuild index.ts --bundle --outfile=build/index.js",
+    "lint": "eslint . --ext .ts --ignore-path .gitignore"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thmsdmcrt/entity-component-system.git"
+  },
+  "keywords": [
+    "ECS",
+    "Entity-Component-System",
+    "Framework"
+  ],
+  "author": "Thomas Démocrite <thomas.democrite@pm.me>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thmsdmcrt/entity-component-system/issues"
+  },
+  "homepage": "https://github.com/thmsdmcrt/entity-component-system#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.9.0",
+    "@typescript-eslint/parser": "^4.9.0",
+    "esbuild": "^0.8.17",
+    "eslint": "^7.14.0",
+    "eslint-config-google": "^0.14.0",
+    "typescript": "^4.1.2"
+  }
+}
