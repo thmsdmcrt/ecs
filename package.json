@@ -2,13 +2,13 @@
 	"name": "entity-component-system",
 	"version": "0.1.0",
 	"description": "Javascript Entity Component System",
-	"main": "build/index.js",
+	"main": "build/main.js",
 	"scripts": {
 		"build:types": "tsc *.ts --target esnext --downlevelIteration --noEmit",
 		"build:lint": "eslint . --ext .ts --ignore-path .gitignore",
-		"build:script": "esbuild ./index.ts --bundle --minify --sourcemap --format=esm --outfile=build/index.js",
+		"build:script": "esbuild ./main.ts --bundle --minify --sourcemap --format=esm --outfile=build/main.js",
 		"build": "npm run build:lint  && npm run build:types && npm run build:script",
-		"test": "jest --passWithNoTests",
+		"test": "jest --passWithNoTests --verbose",
 		"coverage": "jest --coverage"
 	},
 	"eslintConfig": {
@@ -37,7 +37,7 @@
 			"^.+\\.ts?$": "ts-jest"
 		},
 		"testEnvironment": "node",
-		"testRegex": "/modules/.*\\.(test|spec)?\\.(ts|tsx)$",
+		"testRegex": "/.*\\.(test|spec)?\\.(ts|tsx)$",
 		"moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
 		"globals": {
 			"ts-jest": {
