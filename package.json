@@ -4,9 +4,9 @@
 	"description": "Javascript Entity Component System",
 	"main": "build/main.js",
 	"scripts": {
-		"build:types": "tsc *.ts --target esnext --downlevelIteration --noEmit",
-		"build:lint": "eslint . --ext .ts --ignore-path .gitignore",
-		"build:script": "esbuild ./main.ts --bundle --minify --sourcemap --format=esm --outfile=build/main.js",
+		"build:types": "tsc *.ts --target esnext --downlevelIteration --noEmit --skipLibCheck",
+		"build:lint": "eslint . --ext .ts --ignore-path .gitignore --fix",
+		"build:script": "esbuild ./index.ts --bundle --minify --sourcemap --format=esm --outfile=build/index.js",
 		"build": "npm run build:lint  && npm run build:types && npm run build:script",
 		"test": "jest --passWithNoTests --verbose",
 		"coverage": "jest --coverage"
@@ -28,8 +28,12 @@
 			"@typescript-eslint"
 		],
 		"rules": {
-			"indent": ["error", "tab"],
-			"no-tabs": "off"
+			"indent": [
+				"error",
+				"tab"
+			],
+			"no-tabs": "off",
+			"prefer-const": "off"
 		}
 	},
 	"jest": {
@@ -38,7 +42,14 @@
 		},
 		"testEnvironment": "node",
 		"testRegex": "/.*\\.(test|spec)?\\.(ts|tsx)$",
-		"moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"],
+		"moduleFileExtensions": [
+			"ts",
+			"tsx",
+			"js",
+			"jsx",
+			"json",
+			"node"
+		],
 		"globals": {
 			"ts-jest": {
 				"tsconfig": {
