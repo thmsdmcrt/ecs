@@ -2,13 +2,13 @@ export let registry: Record<string, [any, string | null | undefined]> = {};
 export let store: Record<string, number[]> = {};
 
 /**
- * [registerComponent description]
+ * [createComponent description]
  * @param  {any}       value [description]
  * @param  {string |     null          | undefined} label [description]
  * @param  {[type]}          [description]
  * @return {number}          [description]
  */
-export default function registerComponent(
+export default function createComponent(
 	value: any,
 	label: string | null | undefined,
 ): number {
