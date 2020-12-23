@@ -1,22 +1,21 @@
 {
-	"name": "entity-component-system",
+	"name": "@thmsdmcrt/hanka",
 	"version": "0.1.0",
 	"description": "Javascript Entity Component System",
-	"main": "main.js",
-	"exports": "main.js",
+	"main": "index.js",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/thmsdmcrt/entity-component-system.git"
+		"url": "git+https://github.com/thmsdmcrt/hanka.git"
 	},
 	"keywords": [
 		"ECS",
 		"Entity-Component-System",
 		"Framework"
 	],
-	"author": "Thomas Démocrite <thomas.democrite@pm.me>",
+	"author": "Thomas Démocrite <16720221+thmsdmcrt@users.noreply.github.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/thmsdmcrt/entity-component-system/issues"
+		"url": "https://github.com/thmsdmcrt/hanka/issues"
 	},
-	"homepage": "https://github.com/thmsdmcrt/entity-component-system#readme"
+	"homepage": "https://github.com/thmsdmcrt/hanka#readme"
 }

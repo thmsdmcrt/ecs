@@ -1,8 +1,8 @@
 /**
- * Component storage. Indexed by component mask.
+ * Component entities relation storage. Indexed by component mask.
  * @type {Object}
  */
-const store = {};
+const attachments = {};
 
 /**
  * Entities storage. Indexed by entity.
@@ -15,6 +15,7 @@ const entities = {};
  * @type {Number}
  */
 let bits = 0;
+
 /**
  * Create a component
  * @param  {any} value Component value. If value is a function,
@@ -40,9 +41,9 @@ export function createEntity(...components) {
 	let mask = 0;
 
 	for (const component of components) {
-		const [value, name, bit] = Array.isArray(component) ? component : component();
-		store[bit] = store[bit] ? [...store[bit], entity] : [entity];
+		const [value, name, bit] = typeof component === 'function' ? component() : component;
 		if (typeof value !== 'undefined') manager[name || bit] = value;
+		attachments[bit] = attachments[bit] ? [...attachments[bit], entity] : [entity];
 		mask |= bit;
 	}
 
@@ -79,8 +80,8 @@ export function createQuery(...bits) {
 		*[Symbol.iterator]() {
 			for (const bit of includes) {
 				if (matches.length === 0 ||
-					matches.length > store[bit].length) {
-					matches = store[bit];
+					matches.length > attachments[bit].length) {
+					matches = attachments[bit];
 				}
 			}
 
@@ -90,9 +91,8 @@ export function createQuery(...bits) {
 
 				for (const entity of matches) {
 					const {mask, manager} = entities[entity];
-					const inc = (mask & include) === include;
-					const exc = (mask & exclude) !== exclude;
-					if ((exclude === 0 && inc) || (exclude > 0 && inc && exc))
+					if ((exclude === 0 && (mask & include) === include) ||
+						(exclude > 0 && (mask & include) === include && (mask & exclude) !== exclude))
 						results.push(manager);
 				}
 			}
