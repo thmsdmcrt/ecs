@@ -1,4 +1,4 @@
-# @thmsdmcrt/ecs
+# ECS
 
 `ecs` is a lightweight implementation of the Entity Component System pattern, known as ECS, in javascript.
 
@@ -41,10 +41,12 @@ window.addEventListener('mousemove', (e) => {
 const Mouse = ecs.component(mouse, 'mouse');
 ```
 
-- **basic component**: like the shared component, but it provide by entity value. This required that the first argument is a `function`.
+- **basic component**: like the shared component, but it provide by entity value. In this case, the first argument must be a `function`.
 ```js
 const Position = ecs.component((x = 0, y = 0) => [x, y], 'position');
 ```
+
+The second argument of `ecs.component` method is an optionnal `string`, but it provide convenient access to component value, when iterating over [query](#queries) results.
 
 ### Entities
 
@@ -75,9 +77,17 @@ const movables = ecs.query(-Interactive, +Position);
 
 ```js
 function moveInteractives() {
+	// If you provided a name for the targeted components, 
+	// you can access them destructuring the entity.
 	for (const {position, mouse} of interactiveMovables) {
 		position[0] = mouse.x;
 		position[1] = mouse.y;
+	}
+
+	// Or you can use the component mask
+	for (const entity of interactiveMovables) {
+		entity[+Position][0] = mouse.x;
+		entity[+Position][1] = mouse.x;
 	}
 }
 
