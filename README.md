@@ -8,8 +8,12 @@
 
 ## Installation
 
-```shell
+```bash
+# If you have configured npm to install package from https://npm.pkg.github.com
 npm install --save @thmsdmcrt/ecs
+
+# Otherwise
+npm install --save https://github.com/thmsdmcrt/ecs
 ```
 
 ## Usage
