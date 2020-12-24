@@ -20,6 +20,6 @@
 	"homepage": "https://github.com/thmsdmcrt/ecs#readme",
 	"scripts": {
 		"build:examples": "rm -rf ./exampels/node_modules && npm pack && cd ./examples && npm install ../thmsdmcrt-ecs-$npm_package_version.tgz && rm -rf ../thmsdmcrt-ecs-$npm_package_version.tgz",
-		"release": "v=$npm_package_version && git commit -am $v && git tag -s $v -m $v && git push && git push --tags"
+		"release": "v=$npm_package_version && git commit -am $v && git tag -s $v -m $v && git push && git push --tags && npm publish"
 	}
 }
