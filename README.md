@@ -1,10 +1,10 @@
 # @thmsdmcrt/ecs
 
-`@thmsdmcrt/ecs` is a lightweight implementation of the Entity Component System pattern, known as ECS, in javascript.
+`ecs` is a lightweight implementation of the Entity Component System pattern, known as ECS, in javascript.
 
 > ⚠️ This library is a work in progress. You should expect breaking changes.
 
-[Instalation](#installation) | [Usage](#usage) | [API Reference](#api-reference) | [How It Works](#how-it-works)
+[Installation](#installation) | [Usage](#usage) | [API Reference](#api-reference) | [How It Works](#how-it-works)
 
 ## Installation
 
@@ -20,12 +20,12 @@ npm install --save @thmsdmcrt/ecs
 
 As we saw before, components are the aspects of an entity. They are basically juste data, and one of the golden rules of ecs is that **components has no behaviour**. We can distinguish three types of component:
 
-- *tag component*: this component don't provide any data. Its unique purpose is to flag an entity for precise [filtering](#query).
+- **tag component**: this component don't provide any data. Its unique purpose is to flag an entity for precise [filtering](#queries).
 ```js
 const Interactive = ecs.component();
 ```
 
-- *shared component*: this component provide data, but shared accross multiples entities.
+- **shared component**: this component provide data, but shared accross multiples entities.
 ```js
 const mouse = {x: 0, y: 0};
 
@@ -37,7 +37,7 @@ window.addEventListener('mousemove', (e) => {
 const Mouse = ecs.component(mouse, 'mouse');
 ```
 
-- *basic component*: like the shared component, but it provide by entity value. This required that the first argument is a `function`.
+- **basic component**: like the shared component, but it provide by entity value. This required that the first argument is a `function`.
 ```js
 const Position = ecs.component((x = 0, y = 0) => [x, y], 'position');
 ```
