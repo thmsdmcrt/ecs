@@ -23,7 +23,7 @@ let bits = 0;
  * @param  {string} name Component name.
  * @return {number}       Component mask.
  */
-export function createComponent(value, name) {
+export function component(value, name) {
 	const bit = ++bits << 1;
 	const fn = (...args) => [typeof value === 'function' ? value(...args) : value, name, bit];
 	return fn.valueOf = () => bit, fn;
@@ -34,7 +34,7 @@ export function createComponent(value, name) {
  * @param  {...[number | [number, any?]]} descriptors Component descriptors.
  * @return {number}                The created entity.
  */
-export function createEntity(...components) {
+export function entity(...components) {
 	const entity = Object.keys(entities).length;
 	const manager = { entity };
 
@@ -56,7 +56,7 @@ export function createEntity(...components) {
  * Should be a positive or a negative number.
  * @return {Object}         Matching entity iterator.
  */
-export function createQuery(...bits) {
+export function query(...bits) {
 	let results = [];
 	let includes = [];
 	let include = 0;
