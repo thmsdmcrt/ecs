@@ -1,11 +1,11 @@
 {
-	"name": "@thmsdmcrt/hanka",
+	"name": "@thmsdmcrt/ecs",
 	"version": "0.1.0",
 	"description": "Javascript Entity Component System",
 	"main": "index.js",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/thmsdmcrt/hanka.git"
+		"url": "git+https://github.com/thmsdmcrt/ecs.git"
 	},
 	"keywords": [
 		"ECS",
@@ -15,7 +15,10 @@
 	"author": "Thomas Démocrite <16720221+thmsdmcrt@users.noreply.github.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/thmsdmcrt/hanka/issues"
+		"url": "https://github.com/thmsdmcrt/ecs/issues"
 	},
-	"homepage": "https://github.com/thmsdmcrt/hanka#readme"
+	"homepage": "https://github.com/thmsdmcrt/ecs#readme",
+	"scripts": {
+		"build:examples": "rm -rf ./exampels/node_modules && npm pack && cd ./examples && npm install ../thmsdmcrt-ecs-$npm_package_version.tgz && rm -rf ../thmsdmcrt-ecs-$npm_package_version.tgz"
+	}
 }
