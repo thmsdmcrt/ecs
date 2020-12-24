@@ -1,27 +1,28 @@
 /**
- * Component entities relation storage. Indexed by component mask.
+ * Entities/Components relation mapping.
  * @type {Object}
  */
 const attachments = {};
 
 /**
- * Entities storage. Indexed by entity.
+ * Entities store.
+ * @constant
  * @type {Object}
  */
 const entities = {};
 
 /**
- * Component mask tracking
+ * Component mask tracking.
  * @type {Number}
  */
 let bits = 0;
 
 /**
- * Create a component
- * @param  {any} value Component value. If value is a function,
- * it will be considered as a factory, used to provide by entity value or data.
- * @param  {string} name Component name.
- * @return {number}       Component mask.
+ * Create a Component.
+ * @param  {any} value Component value.
+ * If value is a function, it will be considered as a factory, used to provide by entity value or data.
+ * @param  {string} name - Component name.
+ * @return {Function} - Component.
  */
 export function component(value, name) {
 	const bit = ++bits << 1;
@@ -30,9 +31,9 @@ export function component(value, name) {
 }
 
 /**
- * Create an entity, passing component mask or component mask and factory arguments.
- * @param  {...[number | [number, any?]]} descriptors Component descriptors.
- * @return {number}                The created entity.
+ * Create an Entity.
+ * @param  {...Array} components - Entity's component list.
+ * @return {number} - Entity.
  */
 export function entity(...components) {
 	const entity = Object.keys(entities).length;
@@ -51,10 +52,9 @@ export function entity(...components) {
 }
 
 /**
- * Create a query to fetch matching entities.
- * @param  {...[number]} bits Component masks selector.
- * Should be a positive or a negative number.
- * @return {Object}         Matching entity iterator.
+ * Create a Query.
+ * @param  {...number} bits - Components masks. Could be positive or negative. Zero values are ignored.
+ * @return {Iterable} - Results
  */
 export function query(...bits) {
 	let results = [];
@@ -73,10 +73,7 @@ export function query(...bits) {
 	}
 
 	return {
-		/**
-		 * Query results iterator
-		 * @return {[Object]} Mathcing entities components.
-		 */
+		// @yields {Array}
 		*[Symbol.iterator]() {
 			for (const bit of includes) {
 				if (matches.length === 0 ||
