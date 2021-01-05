@@ -1,78 +1,136 @@
-/**
- * [E_COMP_ARRAY_TYPE description]
- * @type {String}
- */
+// @ignore
 const E_COMP_ARRAY_TYPE = 'expects @param {Array<Object|Function>} components.';
 
-/**
- * [E_TARGET_TYPE description]
- * @type {String}
- */
+// @ignore
 const E_TARGET_TYPE = 'expects @param {number} target.';
 
-/**
- * [E_TARGET_UNDEFINED description]
- * @type {String}
- */
+// @ignore
 const E_TARGET_UNDEFINED = 'expects @param {number} target to exist in world.';
 
 /**
- * [validateComponentArgument description]
- * @param  {[type]} component [description]
- * @return {[type]}           [description]
- */
-function validateComponentType(component) {
-	return component && (typeof component !== 'object' || typeof component !== 'function');
-}
-
-/**
- * [warnUnregistredComponent description]
- * @param  {[type]} component [description]
- * @return {[type]}           [description]
- */
-function warnUnregistredComponent(component) {
-	if (!World.components.has(component)) {
-		console.warn(`Expects ${component} to be registred. Skipping.`);
-		return true;
-	}
-	return false;
-}
-
-/**
+ * Simple Map to store each Component's Mask, indexed by Component.
+ * It is used in combination with Component#valueOf.
  *
+ * @type {Map}
+ * @ignore
+ */
+const componentRegistry = new Map();
+
+/**
+ * Class, to be extended, representing a Component. We can destinguish three types of component:
+ *
+ * **Basic/Shared Component**: those two type allow to provide a value to a given entity.
+ * The difference between **Basic** and **Shared**, it that the first one is by entity and the second one
+ * is accross multiple entities.
+ *
+ * **Tag Component**: it don't provide any values, but it is usefull to flag
+ * a particular entity in order to create more accurate {@link Query|queries}.
+ *
+ * @description
+ * You will not call `new Component()` directly. Instead, you will extend from Component and
+ * then instantiate the child class.
+ *
+ * @see {@link Query}
+ *
+ * @example
+ * // Create a basic component
+ * class Position extends Component {
+ *    x = 0;
+ *    y = 1;
+ * }
+ *
+ * // Create a shared component
+ * class Origin extends Component {
+ *    static x = 0;
+ *    static y = 0;
+ * }
+ *
+ * // Create a tag component
+ * class CanMove extends Component {}
+ */
+export class Component {
+	/**
+	 * Get the value of the component's mask. If the value for a given
+	 * constructor does not exists, it will be created.
+	 *
+	 * @example
+	 * // Given a component `Position`, as the first component created.
+	 * +Position // 2
+	 *
+	 * @return {number} - component's mask.
+	 */
+	static valueOf() {
+		if (!componentRegistry.has(this)) {
+			componentRegistry.set(this, 1 + componentRegistry.size << 1);
+		}
+		return componentRegistry.get(this);
+	}
+}
+
+/**
+ * Class representing a World, e.g a specific group of entities.
+ * @example
+ * // Import the default world, if needed.
+ * import world from '@thmsmdmcrt/ecs'
+ *
+ * // Create a new world.
+ * import {World} from '@thmsdmcrt/ecs'
+ *
+ * const world = new World();
  */
 export class World {
+	/**
+	 * Default world instance (if no other instances are needed).
+	 * @type {World}
+	 */
 	static default = new World();
 	/**
-	 * [components description]
-	 * @type {Map}
-	 */
-	static components = new Map();
-	/**
-	 * [entities description]
-	 * @type {Array}
+	 * World entities/masks list. Indexed by entity.
+	 * @type {Array<number>}
+	 * @ignore
 	 */
 	entities = [];
 	/**
-	 * [attachments description]
+	 * World components attached to an entity. Indexed by component's mask.
 	 * @type {Object}
+	 * @ignore
 	 */
 	attachments = {};
 	/**
-	 * [managers description]
+	 * World entities components. Indexed by entity.
 	 * @type {Object}
+	 * @ignore
 	 */
 	managers = {};
 	/**
-	 * [push description]
-	 * @param  {Array}  components [description]
-	 * @param  {[type]} target     [description]
-	 * @return {[type]}            [description]
+	 * Method to add an entity to the world instance.
+	 * If the second parameter is provided, `world#push` will add components to the target.
+	 * Otherwise, it create a new entity. There is two way to use a component to create an entity
+	 * or to add to an entity:
+	 * If the component is a **Shared Component** or a **Tag Component**, simply pass the constructor.
+	 * For a **Base Component**, pass a new instance.
+	 *
+	 * @see Component
+	 *
+	 * @example
+	 * // Assumes that your using components created in the {@link Component|Component class examples}.
+	 * // Create a new entity.
+	 * const player = world.push([new Position, Origin, CanMove]);
+	 *
+	 * // Add a component to the created entity.
+	 * world.push([new MyNewComponent], player);
+	 *
+	 * @param  {Array}  components – Components list to add to an entity.
+	 * @param  {number} target     – The target entity (Optional).
+	 * @return {number}            – The entity.
 	 */
 	push(components = [], target = null) {
 		/* Validate method's arguments */
-		if (!Array.isArray(components) ||
-			!components.every(validateComponentType))
+		const areComponentsValid = components.every((component) => {
+			return component && (typeof component === 'object' || typeof component === 'function');
+		});
+
+		if (!Array.isArray(components) || !areComponentsValid)
 			throw new TypeError(`world#push ${E_COMP_ARRAY_TYPE}`);
 
 		if (target && typeof target !== 'number')
@@ -86,11 +144,9 @@ export class World {
 
 		for (const component of components) {
 			const constructor = typeof component === 'function' ? component : component.constructor;
-
-			if (warnUnregistredComponent(constructor)) continue;
+			const mask = +constructor;
 
 			/* Register entity's component mask */
-			const mask = +constructor;
 			this.entities[entity] |= mask;
 
 			/* Attach entity's component */
@@ -107,18 +163,28 @@ export class World {
 			this.managers[entity] = this.managers[entity] || {};
 			this.managers[entity][mask] = component;
 
-			Object.defineProperty(this.managers[entity], constructor.name.toLowerCase(), {
-				get: () => this.managers[entity][mask]
-			});
+			Object.defineProperty(
+				this.managers[entity],
+				`${constructor.name[0].toLowerCase()}${constructor.name.slice(1)}`,
+				{get: () => this.managers[entity][mask]}
+			);
 		}
 
 		return entity;
 	}
 	/**
-	 * [pull description]
-	 * @param  {[type]} target     [description]
-	 * @param  {Array}  components [description]
-	 * @return {[type]}            [description]
+	 * Method to remove an entity or one or more of its components.
+	 * It only handle the entity's mask value, to prevent entity's component garbage collection.
+	 *
+	 * @example
+	 * // Remove a specific component for the given entity.
+	 * world.pull(player, [Position]);
+	 *
+	 * // Remove an entity.
+	 * world.pull(player);
+	 *
+	 * @param  {number} target     – The entity target.
+	 * @param  {Array}  components – Components list to remove. It expects component constructors, not instances.
 	 */
 	pull(target, components = []) {
 		/* Validate method's arguments */
@@ -139,8 +205,10 @@ export class World {
 
 		if (components.length > 0) {
 			for (const component of components) {
-				if (warnUnregistredComponent(component)) continue;
 				const mask = +component;
+
+				if (!this.attachments[mask]) continue;
+
 				/* Detach entity's component */
 				const i = this.attachments[mask].indexOf(entity);
 				if (i >= 0) this.attachments[mask].splice(i, 1);
@@ -153,23 +221,14 @@ export class World {
 }
 
 /**
+ * Class representing a Query.
  *
- */
-export class Component {
-	/**
-	 * [valueOf description]
-	 * @return {[type]} [description]
-	 */
-	static valueOf() {
-		if (!World.components.has(this)) {
-			World.components.set(this, 1 + World.components.size << 1);
-		}
-		return World.components.get(this);
-	}
-}
-
-/**
+ * @example
+ * // Retrive entities that can move.
+ * const MovableEntities = new Query([+Position, +CanMove]);
  *
+ * // Retrive entities that can't move.
+ * const StaticEntities = new Query([+Position, -CanMove]);
  */
 export class Query {
 	attachments = [];
@@ -179,13 +238,15 @@ export class Query {
 	size = 0;
 	results = [];
 	/**
-	 * [constructor description]
-	 * @param  {Array}  masks [description]
-	 * @return {[type]}       [description]
+	 * Query constructor.
+	 * @param  {Array}  masks Component's mask list, using component constructor `valueOf`.
 	 */
 	constructor(masks = []) {
 		if (masks.some(Number.isNaN))
-			throw new TypeError(`query#constructor expects @param {Array<number>} masks. Corresponding component has not been registered.`);
+			throw new TypeError(`
+				query#constructor expects @param {Array<number>} masks.
+				Corresponding component has not been registered.
+			`);
 
 		for (const mask of masks) {
 			if (mask > 0) {
@@ -199,11 +260,21 @@ export class Query {
 		}
 	}
 	/**
-	 * [iter description]
-	 * @param  {[type]} world [description]
-	 * @return {[type]}       [description]
+	 * Method to filter entities for the given components in a given world.
+	 * It should be used in a System (e.g Function as it follows).
+	 *
+	 * @example
+	 * function MoveEntities() {
+	 *   // Assuming you using `World.default`.
+	 *   for (const {position} of MovableEntities.iter()) {
+	 *     // ...
+	 *   }
+	 * }
+	 *
+	 * @param  {World} world The world target. Default to `World.default`.
+	 * @return {Iterable}    The query's results.
 	 */
-	*iter(world) {
+	*iter(world = World.default) {
 		if (!(world instanceof World))
 			throw new TypeError('query#iter expects @param {World} world.');
 

@@ -1,3 +1,4 @@
 .DS_Store
 *.tgz
 examples/
+node_modules/

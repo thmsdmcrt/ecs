@@ -17,9 +17,5 @@
 	"bugs": {
 		"url": "https://github.com/thmsdmcrt/ecs/issues"
 	},
-	"homepage": "https://github.com/thmsdmcrt/ecs#readme",
-	"scripts": {
-		"build:examples": "npm pack && cd ./examples && rm -rf node_modules && rm -rf package-lock.json && npm install ../thmsdmcrt-ecs-$npm_package_version.tgz && rm -rf ../thmsdmcrt-ecs-$npm_package_version.tgz",
-		"release": "v=$npm_package_version && git commit -am $v && git tag -s $v -m $v && git push && git push --tags && npm publish"
-	}
+	"homepage": "https://github.com/thmsdmcrt/ecs#readme"
 }
