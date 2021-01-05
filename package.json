@@ -17,5 +17,15 @@
 	"bugs": {
 		"url": "https://github.com/thmsdmcrt/ecs/issues"
 	},
-	"homepage": "https://github.com/thmsdmcrt/ecs#readme"
+	"homepage": "https://github.com/thmsdmcrt/ecs#readme",
+	"scripts": {
+		"lint": "eslint index.js"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.12.10",
+		"@babel/eslint-parser": "^7.12.1",
+		"babel-eslint": "^10.1.0",
+		"eslint": "^7.17.0",
+		"eslint-config-google": "^0.14.0"
+	}
 }
