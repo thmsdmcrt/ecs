@@ -17,18 +17,20 @@ const E_TARGET_UNDEFINED = 'expects @param {number} target to exist in world.';
 const componentRegistry = new Map();
 
 /**
- * Class, to be extended, representing a Component. We can destinguish three types of component:
+ * Class, to be extended, representing a Component. We can destinguish three
+ * types of component:
  *
- * **Basic/Shared Component**: those two type allow to provide a value to a given entity.
- * The difference between **Basic** and **Shared**, it that the first one is by entity and the second one
- * is accross multiple entities.
+ * **Basic/Shared Component**: those two type allow to provide a value
+ * to a given entity. The difference between **Basic** and **Shared**,
+ * it that the first one is by entity and the second one is accross multiple
+ * entities.
  *
  * **Tag Component**: it don't provide any values, but it is usefull to flag
  * a particular entity in order to create more accurate {@link Query|queries}.
  *
  * @description
- * You will not call `new Component()` directly. Instead, you will extend from Component and
- * then instantiate the child class.
+ * You will not call `new Component()` directly. Instead, you will extend
+ * from Component and then instantiate the child class.
  *
  * @see {@link Query}
  *
@@ -60,7 +62,7 @@ export class Component {
 	 * @return {number} - component's mask.
 	 */
 	static valueOf() {
-		if (!componentRegistry.has(this)) {
+		if (!componentRegistry.has(this)) {
 			componentRegistry.set(this, 1 + componentRegistry.size << 1);
 		}
 		return componentRegistry.get(this);
@@ -80,35 +82,41 @@ export class Component {
  */
 export class World {
 	/**
-	 * World entities/masks list. Indexed by entity.
-	 * @type {Array<number>}
-	 * @ignore
+	 * World constructor
 	 */
-	entities = [];
-	/**
-	 * World components attached to an entity. Indexed by component's mask.
-	 * @type {Object}
-	 * @ignore
-	 */
-	attachments = {};
-	/**
-	 * World entities components. Indexed by entity.
-	 * @type {Object}
-	 * @ignore
-	 */
-	managers = {};
+	constructor() {
+		/**
+		 * World entities/masks list. Indexed by entity.
+		 * @type {Array<number>}
+		 * @ignore
+		 */
+		this.entities = [];
+		/**
+		 * World components attached to an entity. Indexed by component's mask.
+		 * @type {Object}
+		 * @ignore
+		 */
+		this.attachments = {};
+		/**
+		 * World entities components. Indexed by entity.
+		 * @type {Object}
+		 * @ignore
+		 */
+		this.managers = {};
+	}
 	/**
 	 * Method to add an entity to the world instance.
-	 * If the second parameter is provided, `world#push` will add components to the target.
-	 * Otherwise, it create a new entity. There is two way to use a component to create an entity
-	 * or to add to an entity:
-	 * If the component is a **Shared Component** or a **Tag Component**, simply pass the constructor.
-	 * For a **Base Component**, pass a new instance.
+	 * If the second parameter is provided, `world#push` will add components
+	 * to the target. Otherwise, it create a new entity. There is two way
+	 * to use a component to create an entity or to add to an entity:
+	 * If the component is a **Shared Component** or a **Tag Component**,
+	 * simply pass the constructor. For a **Base Component**, pass a new instance.
 	 *
 	 * @see Component
 	 *
 	 * @example
-	 * // Assumes that your using components created in the {@link Component|Component class examples}.
+	 * // Assumes that your using components created in the Component examples.
+	 *
 	 * // Create a new entity.
 	 * const player = world.push([new Position, Origin, CanMove]);
 	 *
@@ -122,23 +130,29 @@ export class World {
 	push(components = [], target = null) {
 		/* Validate method's arguments */
 		const areComponentsValid = components.every((component) => {
-			return component && (typeof component === 'object' || typeof component === 'function');
+			return component &&
+				(typeof component === 'object' ||
+					typeof component === 'function');
 		});
 
-		if (!Array.isArray(components) || !areComponentsValid)
+		if (!Array.isArray(components) || !areComponentsValid) {
 			throw new TypeError(`world#push ${E_COMP_ARRAY_TYPE}`);
+		}
 
-		if (target && typeof target !== 'number')
+		if (target && typeof target !== 'number') {
 			throw new TypeError(`world#push ${E_TARGET_TYPE}`);
+		}
 
-		if (target && !this.entities[target])
+		if (target && !this.entities[target]) {
 			throw new TypeError(`world#push ${E_TARGET_UNDEFINED}`);
+		}
 
 		/* Body */
 		const entity = target ? target : this.entities.push(0) - 1;
 
 		for (const component of components) {
-			const constructor = typeof component === 'function' ? component : component.constructor;
+			const constructor = typeof component === 'function' ?
+				component : component.constructor;
 			const mask = +constructor;
 
 			/* Register entity's component mask */
@@ -146,14 +160,17 @@ export class World {
 
 			/* Attach entity's component */
 			this.attachments[mask] = this.attachments[mask] || [];
-			if (this.attachments[mask].indexOf(entity) < 0)
+			if (this.attachments[mask].indexOf(entity) < 0) {
 				this.attachments[mask].push(entity);
+			}
 
 			/* Register entity's component */
 
 			// Skipping for Tag Component.
-			if (Object.keys(constructor).length === 0 && Object.keys(component).length === 0)
+			if (Object.keys(constructor).length === 0 &&
+				Object.keys(component).length === 0) {
 				continue;
+			}
 
 			this.managers[entity] = this.managers[entity] || {};
 			this.managers[entity][mask] = component;
@@ -161,7 +178,7 @@ export class World {
 			Object.defineProperty(
 				this.managers[entity],
 				`${constructor.name[0].toLowerCase()}${constructor.name.slice(1)}`,
-				{get: () => this.managers[entity][mask]}
+				{get: () => this.managers[entity][mask]},
 			);
 		}
 
@@ -169,7 +186,8 @@ export class World {
 	}
 	/**
 	 * Method to remove an entity or one or more of its components.
-	 * It only handle the entity's mask value, to prevent entity's component garbage collection.
+	 * It only handle the entity's mask value, to prevent entity's
+	 * component garbage collection.
 	 *
 	 * @example
 	 * // Remove a specific component for the given entity.
@@ -179,24 +197,34 @@ export class World {
 	 * world.pull(player);
 	 *
 	 * @param  {number} target     – The entity target.
-	 * @param  {Array}  components – Components list to remove. It expects component constructors, not instances.
+	 * @param  {Array}  components – Components list to remove.
+	 * It expects component constructors, not instances.
 	 */
 	pull(target, components = []) {
 		/* Validate method's arguments */
-		if (!target || typeof target !== 'number')
+		if (!target || typeof target !== 'number') {
 			throw new TypeError(`world#pull ${E_TARGET_TYPE}`);
+		}
 
 		if (!Array.isArray(components) ||
-			!components.every((component) => component && typeof component === 'function'));
-			throw new TypeError('world#pull expects @param {Array<Function>} components.');
+			!components.every((component) => {
+				return component && typeof component === 'function';
+			})) {
+			throw new TypeError(
+				'world#pull expects @param {Array<Function>} components.',
+			);
+		}
 
-		if (!this.entities[target])
-			throw new TypeError(`world#pull ${E_TARGET_UNDEFINED}`);$
+
+		if (!this.entities[target]) {
+			throw new TypeError(`world#pull ${E_TARGET_UNDEFINED}`);
+		}$;
 
 		/* Body */
-		if (components.length === 0)
+		if (components.length === 0) {
 			/* Reset entity's component mask */
 			this.entities[target] = 0;
+		}
 
 		if (components.length > 0) {
 			for (const component of components) {
@@ -226,22 +254,24 @@ export class World {
  * const StaticEntities = new Query([+Position, -CanMove]);
  */
 export class Query {
-	attachments = [];
-	include = 0;
-	exclude = 0;
-	match = [];
-	size = 0;
-	results = [];
 	/**
 	 * Query constructor.
-	 * @param  {Array}  masks Component's mask list, using component constructor `valueOf`.
+	 * @param  {Array}  masks Component's mask list, using component `valueOf`.
 	 */
 	constructor(masks = []) {
-		if (masks.some(Number.isNaN))
+		if (masks.some(Number.isNaN)) {
 			throw new TypeError(`
 				query#constructor expects @param {Array<number>} masks.
 				Corresponding component has not been registered.
 			`);
+		}
+
+		this.attachments = [];
+		this.include = 0;
+		this.exclude = 0;
+		this.match = [];
+		this.size = 0;
+		this.results = [];
 
 		for (const mask of masks) {
 			if (mask > 0) {
@@ -267,16 +297,17 @@ export class Query {
 	 * }
 	 *
 	 * @param  {World} world The world target. Default to `World.default`.
-	 * @return {Iterable}    The query's results.
 	 */
-	*iter(world) {
-		if (!(world instanceof World))
+	* iter(world) {
+		if (!(world instanceof World)) {
 			throw new TypeError('query#iter expects @param {World} world.');
+		}
 
 		for (const mask of this.attachments) {
 			if (!this.match ||
 				this.match.length === 0 ||
-				(world.attachments[mask] && this.match.length > world.attachments[mask].length)) {
+				(world.attachments[mask] &&
+					this.match.length > world.attachments[mask].length)) {
 				this.match = world.attachments[mask];
 			}
 		}
@@ -291,9 +322,11 @@ export class Query {
 				const mask = world.entities[entity];
 				const include = (mask & this.include) === this.include;
 
-				if ((this.exclude === 0 && include)/* ||
-					(this.exclude > 0 && include && (mask & this.exclude) !== this.exclude)*/)
+				if ((this.exclude === 0 && include) ||
+					(this.exclude > 0 && include &&
+						(mask & this.exclude) !== this.exclude)) {
 					this.results.push(world.managers[entity]);
+				}
 			}
 		}
 
