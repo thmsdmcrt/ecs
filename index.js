@@ -1,4 +1,10 @@
 /**
+ * @file Entity Component System Implementation
+ * @licence MIT
+ * @author Thomas Démocrite
+ */
+
+/**
  * Class, to be extended, representing a Component. We can destinguish three
  * types of component:
  *
@@ -31,6 +37,8 @@
  *
  * // Create a tag component
  * class CanMove extends Component {}
+ *
+ * @hideconstructor
  */
 export class Component {
 	/**
@@ -107,7 +115,11 @@ export class World {
 	 *
 	 * @param  {Array}  components – Components list to add to an entity.
 	 * @param  {number} target     – The target entity (Optional).
+	 *
 	 * @return {number}            – The entity.
+	 *
+	 * @throws Will throw a `TypeError` if components or target arguments types
+	 * are invalid.
 	 */
 	push(components = [], target = null) {
 		/* Validate method's arguments */
@@ -183,6 +195,9 @@ export class World {
 	 * @param  {number} target     – The entity target.
 	 * @param  {Array}  components – Components list to remove.
 	 * It expects component constructors, not instances.
+	 *
+	 * @throws Will throw a `TypeError` if components or target arguments types
+	 * are invalid.
 	 */
 	pull(target, components = []) {
 		/* Validate method's arguments */
@@ -239,7 +254,10 @@ export class World {
 export class Query {
 	/**
 	 * Query constructor.
+	 *
 	 * @param  {Array}  masks Component's mask list, using component `valueOf`.
+	 *
+	 * @throws Will throw a `TypeError` if masks argument type is invalid.
 	 */
 	constructor(masks = []) {
 		if (masks.some(Number.isNaN)) {
