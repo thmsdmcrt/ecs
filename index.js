@@ -80,11 +80,6 @@ export class Component {
  */
 export class World {
 	/**
-	 * Default world instance (if no other instances are needed).
-	 * @type {World}
-	 */
-	static default = new World();
-	/**
 	 * World entities/masks list. Indexed by entity.
 	 * @type {Array<number>}
 	 * @ignore
@@ -274,7 +269,7 @@ export class Query {
 	 * @param  {World} world The world target. Default to `World.default`.
 	 * @return {Iterable}    The query's results.
 	 */
-	*iter(world = World.default) {
+	*iter(world) {
 		if (!(world instanceof World))
 			throw new TypeError('query#iter expects @param {World} world.');
 
@@ -306,4 +301,4 @@ export class Query {
 	}
 }
 
-export default World.default;
+export default new World();
