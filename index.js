@@ -1,21 +1,3 @@
-// @ignore
-const E_COMP_ARRAY_TYPE = 'expects @param {Array<Object|Function>} components.';
-
-// @ignore
-const E_TARGET_TYPE = 'expects @param {number} target.';
-
-// @ignore
-const E_TARGET_UNDEFINED = 'expects @param {number} target to exist in world.';
-
-/**
- * Simple Map to store each Component's Mask, indexed by Component.
- * It is used in combination with Component#valueOf.
- *
- * @type {Map}
- * @ignore
- */
-const componentRegistry = new Map();
-
 /**
  * Class, to be extended, representing a Component. We can destinguish three
  * types of component:
@@ -158,7 +140,7 @@ export class World {
 			/* Register entity's component mask */
 			this.entities[entity] |= mask;
 
-			/* Attach entity's component */
+			/* Attach entity's component mask */
 			this.attachments[mask] = this.attachments[mask] || [];
 			if (this.attachments[mask].indexOf(entity) < 0) {
 				this.attachments[mask].push(entity);
@@ -172,9 +154,11 @@ export class World {
 				continue;
 			}
 
+			/* Attach entity's component value */
 			this.managers[entity] = this.managers[entity] || {};
 			this.managers[entity][mask] = component;
 
+			// Use component's class name to provide key access in object
 			Object.defineProperty(
 				this.managers[entity],
 				`${constructor.name[0].toLowerCase()}${constructor.name.slice(1)}`,
@@ -215,10 +199,9 @@ export class World {
 			);
 		}
 
-
 		if (!this.entities[target]) {
 			throw new TypeError(`world#pull ${E_TARGET_UNDEFINED}`);
-		}$;
+		};
 
 		/* Body */
 		if (components.length === 0) {
@@ -260,17 +243,38 @@ export class Query {
 	 */
 	constructor(masks = []) {
 		if (masks.some(Number.isNaN)) {
-			throw new TypeError(`
-				query#constructor expects @param {Array<number>} masks.
-				Corresponding component has not been registered.
-			`);
+			throw new TypeError(`query#constructor ${E_MASK_ARRAY_TYPE}`);
 		}
 
+		/**
+		 * Included query's component
+		 * @type {Array}
+		 */
 		this.attachments = [];
+		/**
+		 * Included query's component mask
+		 * @type {Number}
+		 */
 		this.include = 0;
+		/**
+		 * Excluded query's component mask
+		 * @type {Number}
+		 */
 		this.exclude = 0;
+		/**
+		 * Query's entities match
+		 * @type {Array}
+		 */
 		this.match = [];
+		/**
+		 * Query's match size
+		 * @type {Number}
+		 */
 		this.size = 0;
+		/**
+		 * Query's results
+		 * @type {Array}
+		 */
 		this.results = [];
 
 		for (const mask of masks) {
@@ -300,9 +304,10 @@ export class Query {
 	 */
 	* iter(world) {
 		if (!(world instanceof World)) {
-			throw new TypeError('query#iter expects @param {World} world.');
+			throw new TypeError(E_WORLD_TYPE);
 		}
 
+		// Get the shortest entity list for the given query's masks.
 		for (const mask of this.attachments) {
 			if (!this.match ||
 				this.match.length === 0 ||
@@ -312,16 +317,20 @@ export class Query {
 			}
 		}
 
+		// On iteration, reset results if the match change.
 		if (this.match.length !== this.size) {
 			this.size = this.match.length;
 			this.results.length = 0;
 		}
 
+		// Populate results
 		if (this.results.length === 0) {
 			for (const entity of this.match) {
 				const mask = world.entities[entity];
 				const include = (mask & this.include) === this.include;
 
+				// Check if entity include or exclude components. If the predicate
+				// is valid, push the entity to the results array.
 				if ((this.exclude === 0 && include) ||
 					(this.exclude > 0 && include &&
 						(mask & this.exclude) !== this.exclude)) {
@@ -335,3 +344,27 @@ export class Query {
 }
 
 export default new World();
+
+// @ignore
+const E_COMP_ARRAY_TYPE = 'expects @param {Array<Object|Function>} components.';
+
+// @ignore
+const E_TARGET_TYPE = 'expects @param {number} target.';
+
+// @ignore
+const E_TARGET_UNDEFINED = 'expects @param {number} target to exist in world.';
+
+// @ignore
+const E_MASK_ARRAY_TYPE = 'expects @param {Array<number>} masks';
+
+// @ignore
+const E_WORLD_TYPE = 'query#iter expects @param {World} world.';
+
+/**
+ * Simple Map to store each Component's Mask, indexed by Component.
+ * It is used in combination with Component#valueOf.
+ *
+ * @type {Map}
+ * @ignore
+ */
+const componentRegistry = new Map();
